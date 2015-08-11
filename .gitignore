@@ -5,3 +5,6 @@
 .DS_Store
 /build
 /captures
+LifeTimeline.iml
+mobile/mobile.iml
+wear/wear.iml
