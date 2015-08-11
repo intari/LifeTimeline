@@ -120,12 +120,21 @@ def getVersionName()  {
 }
 
 /**
- * Returns API Key for Amplitude Analytics
+ * Returns API Key for Amplitude Analytics from config file if it's here
  * @return API Key for Amplitude Analytics
  */
 
 def getAmplitudeAPIKey() {
-    return "xxx";//TODO:
+    def amplitudeApiKey=System.getenv("AMPLITUDE_API_KEY");
+    if(project.hasProperty("apiKeysPath") ) {
+        File apiKeysFile = new File(System.getenv('HOME') + "/" + project.property("apiKeysPath"))
+        if (apiKeysFile.canRead()) {
+            def Properties apiKeysProps = new Properties()
+            apiKeysProps.load(new FileInputStream(apiKeysFile))
+            amplitudeApiKey = apiKeysProps['AMPLITUDE_API_KEY'];
+        }
+    }
+    return amplitudeApiKey
 }
 
 def appVersionName = advancedVersioning.versionName+"."+advancedVersioning.versionCode

@@ -39,7 +39,7 @@ public class Constants {
     //fair accuracy:<20.0f
     //poor accuracy:>20.0f
 
-    public static final boolean useAmplitude=false;//true - use Amplitude Analytics
+    public static final boolean useAmplitude=true;//true - use Amplitude Analytics
     public static final int BYTES_IN_KB = 1024;
 
 }
