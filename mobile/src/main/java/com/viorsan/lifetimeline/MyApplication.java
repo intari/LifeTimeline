@@ -94,5 +94,5 @@ public class MyApplication extends android.app.Application {
                 }
             }
         }
-
+    }
 }
