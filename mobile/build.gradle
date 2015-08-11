@@ -228,7 +228,7 @@ dependencies {
     compile 'com.seppius.plurals:android-i18n-plurals:1.+'
     compile 'com.amplitude:android-sdk:1.6.3'
     compile 'com.commonsware.cwac:strictmodeex:0.3.+'
-    compile 'com.android.support:multidex:1.0.0'
+    compile 'com.android.support:multidex:1.0.1'
     compile('com.mikepenz:materialdrawer:3.0.6@aar') {
         transitive = true
     }
