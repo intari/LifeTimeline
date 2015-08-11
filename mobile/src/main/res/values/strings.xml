@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">LifeTimeline</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- key used to store apps's settings/cached ids/etc -->
+    <string name="preferencesKey" translatable="false">com.viorsan.lifetimeline.preferences_key</string>
+
+</resources>

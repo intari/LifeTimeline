@@ -1,0 +1,223 @@
+import java.text.SimpleDateFormat
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'org.moallemi.gradle.advanced-build-version:gradle-plugin:1.5.0'
+
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url "http://dl.bintray.com/populov/maven" }
+    maven { url "https://repo.commonsware.com.s3.amazonaws.com" }
+}
+
+apply plugin: 'org.moallemi.advanced-build-version'
+
+//
+advancedVersioning {
+    nameOptions {
+        versionMajor 1
+        versionMinor 0
+        versionPatch 0
+    }
+    codeOptions {
+        versionCodeType org.moallemi.gradle.internal.VersionCodeType.DATE
+        dependsOnTasks 'debug', 'release', 'assemble'
+    }
+
+/*
+    outputOptions {
+        //conflicts with hockeyapp (until more changes done)
+        //renameOutput true
+        //$flavorName when I start to use flavors
+        nameFormat '$appName-$buildType-$versionName'
+    }
+    */
+}
+
+/**
+ * Get SHA1 hash of head revision whch we build
+ * @return hash of head
+ */
+def gitSha() {
+    def res = 'git rev-parse HEAD'.execute([], project.rootDir).text.trim()
+
+    //ignore extra files if it's Jenkinks
+    if (System.getenv('RUNNING_UNDER_INTERNAL_JENKINS')!='YES') {
+        def diff = 'git diff'.execute([], project.rootDir).text.trim()
+        if (diff != null && diff.length() > 0) {
+            res += "-dirty"
+        }
+    }
+
+    return res
+}
+/**
+ * Get short version of last commit message
+ * @return short version of last commit message
+ */
+def gitLastCommit() {
+    return 'git log -1 --no-merges --pretty=oneline --abbrev-commit'.execute().text.trim()
+}
+/**
+ * Get build time in short form
+ * @return build time in short form
+ */
+def buildTime() {
+    def df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'")
+    df.setTimeZone(TimeZone.getTimeZone("UTC")) //RTZ5 (Omsk) is UTC+6 per https://ru.wikipedia.org/wiki/Время_в_России
+    return df.format(new Date())
+}
+
+/**
+ * Get more readable form of build time like 2014/12/31 23:59
+ * @return time of build in more human-readable form
+ */
+def buildTimeHumanReadable() {
+    def df = new SimpleDateFormat("yyyy/MM/dd HH:mm")
+    df.setTimeZone(TimeZone.getTimeZone("UTC")) //RTZ5 (Omsk) is UTC+6 per https://ru.wikipedia.org/wiki/Время_в_России
+    return df.format(new Date())
+}
+/**
+ * get hostname on whichbuild was run
+ * @return builder's hostname
+ */
+def getHostname() {
+    return 'hostname'.execute().text.trim()
+}
+/**
+ * user name used for build
+ * @return user login used for build (could help if local build)
+ */
+def getUsername() {
+    return System.getProperty("user.name")
+}
+
+/**
+ * Gets the version name from the latest Git tag in case I want to use this scheme
+ * @return latest git tag
+ */
+def getVersionName()  {
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'describe', '--tags'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+/**
+ * Returns API Key for Amplitude Analytics
+ * @return API Key for Amplitude Analytics
+ */
+
+def getAmplitudeAPIKey() {
+    return "xxx";//TODO:
+}
+
+def appVersionName = advancedVersioning.versionName+"."+advancedVersioning.versionCode
+def appVersionCode = advancedVersioning.versionCode
+
+
+
+apply plugin: 'com.android.application'
+
+
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion "21.1.2"
+
+    defaultConfig {
+        applicationId "com.viorsan.lifetimeline"
+        minSdkVersion 16
+        targetSdkVersion 22
+
+        versionCode appVersionCode
+        versionName appVersionName
+        multiDexEnabled = true
+        dexOptions {
+            javaMaxHeapSize "4g"
+        }
+    }
+    buildTypes {
+        debug {
+            buildConfigField "String", "BUILD_DATE_TIME", "\"" + buildTimeHumanReadable() + "\""
+            buildConfigField "String","BUILD_GIT_SHA1", "\""+gitSha()+"\""
+            buildConfigField "String","BUILD_HOST", "\""+getHostname()+"\""
+            buildConfigField "String","BUILD_USER", "\""+getUsername()+"\""
+            buildConfigField "String","AMPLITUDE_API_KEY","\""+getAmplitudeAPIKey()+"\""
+        }
+        release {
+            buildConfigField "String", "BUILD_DATE_TIME", "\"" + buildTimeHumanReadable() + "\""
+            buildConfigField "String","BUILD_GIT_SHA1", "\""+gitSha()+"\""
+            buildConfigField "String","BUILD_HOST", "\""+getHostname()+"\""
+            buildConfigField "String","BUILD_USER", "\""+getUsername()+"\""
+            buildConfigField "String","AMPLITUDE_API_KEY","\""+getAmplitudeAPIKey()+"\""
+
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+    }
+
+    packagingOptions {
+        exclude 'LICENSE.txt'
+    }
+
+    //JavaDocs
+    android.applicationVariants.all { variant ->
+
+        task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
+            title = "Documentation for Android $android.defaultConfig.versionName b$android.defaultConfig.versionCode"
+            destinationDir = new File("${project.getProjectDir()}/doc/compiled/", variant.baseName)
+            source = variant.javaCompile.source
+
+            ext.androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+            classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
+
+            description "Generates Javadoc for $variant.name."
+
+            options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PRIVATE
+            options.links("http://docs.oracle.com/javase/7/docs/api/");
+            options.links("http://developer.android.com/reference/reference/");
+            exclude '**/BuildConfig.java'
+            //exclude '**/R.java'
+        }
+    }
+
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    wearApp project(':wear')
+    compile 'com.android.support:appcompat-v7:22.2.1'
+    compile 'com.google.android.gms:play-services:7.5.0'
+
+    compile 'com.jakewharton.timber:timber:3.1.0'
+    compile 'uk.co.chrisjenx:calligraphy:2.1.0'
+    compile 'com.makeramen:roundedimageview:1.5.0'
+    compile 'com.google.code.gson:gson:2.3.1'
+    compile 'com.squareup.picasso:picasso:2.5.0'
+    compile 'com.squareup.retrofit:retrofit:1.9.0'
+    compile 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
+    compile 'com.squareup.okhttp:okhttp:2.0.0'
+    compile 'net.danlew:android.joda:2.7.1'
+    compile 'de.greenrobot:eventbus:2.4.0'
+    compile 'com.path:android-priority-jobqueue:1.1.2'
+    compile 'com.seppius.plurals:android-i18n-plurals:1.+'
+    compile 'com.amplitude:android-sdk:1.6.3'
+    compile 'com.commonsware.cwac:strictmodeex:0.3.+'
+    compile 'com.android.support:multidex:1.0.0'
+    compile('com.mikepenz:materialdrawer:3.0.6@aar') {
+        transitive = true
+    }
+
+}
