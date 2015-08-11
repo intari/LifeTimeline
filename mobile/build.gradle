@@ -222,6 +222,15 @@ android {
 
 }
 
+retrolambda {
+    //only configure on Jenkins
+    def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
+    if (jenkinsBuild!="0") {
+        jdk System.getenv("JAVA_HOME")
+        oldJdk System.getenv("JAVA7_HOME")
+    }
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     wearApp project(':wear')
