@@ -16,8 +16,12 @@ repositories {
     mavenCentral()
     maven { url "http://dl.bintray.com/populov/maven" }
     maven { url "https://repo.commonsware.com.s3.amazonaws.com" }
-}
 
+}
+apply plugin: 'android-sdk-manager' // run before com.android.application
+
+apply plugin: 'com.android.application'
+apply plugin: 'com.android.databinding'
 apply plugin: 'org.moallemi.advanced-build-version'
 
 //
@@ -200,6 +204,8 @@ dependencies {
     wearApp project(':wear')
     compile 'com.android.support:appcompat-v7:22.2.1'
     compile 'com.google.android.gms:play-services:7.5.0'
+    compile 'com.android.support:design:22.2.1'
+    compile 'com.android.support:recyclerview-v7:22.2.1'
 
     compile 'com.jakewharton.timber:timber:3.1.0'
     compile 'uk.co.chrisjenx:calligraphy:2.1.0'
@@ -219,5 +225,6 @@ dependencies {
     compile('com.mikepenz:materialdrawer:3.0.6@aar') {
         transitive = true
     }
+    compile 'me.tatarka:bindingcollectionadapter:0.10'
 
 }
