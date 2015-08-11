@@ -162,6 +162,9 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
 
+        testApplicationId "com.viorsan.lifetimeline.test"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
 
         versionCode appVersionCode
         versionName appVersionName
@@ -172,14 +175,14 @@ android {
     }
     buildTypes {
         debug {
-            buildConfigField "String", "BUILD_DATE_TIME", "\"" + buildTimeHumanReadable() + "\""
+            buildConfigField "String","BUILD_DATE_TIME", "\"" + buildTimeHumanReadable() + "\""
             buildConfigField "String","BUILD_GIT_SHA1", "\""+gitSha()+"\""
             buildConfigField "String","BUILD_HOST", "\""+getHostname()+"\""
             buildConfigField "String","BUILD_USER", "\""+getUsername()+"\""
             buildConfigField "String","AMPLITUDE_API_KEY","\""+getAmplitudeAPIKey()+"\""
         }
         release {
-            buildConfigField "String", "BUILD_DATE_TIME", "\"" + buildTimeHumanReadable() + "\""
+            buildConfigField "String","BUILD_DATE_TIME", "\"" + buildTimeHumanReadable() + "\""
             buildConfigField "String","BUILD_GIT_SHA1", "\""+gitSha()+"\""
             buildConfigField "String","BUILD_HOST", "\""+getHostname()+"\""
             buildConfigField "String","BUILD_USER", "\""+getUsername()+"\""
@@ -232,6 +235,12 @@ retrolambda {
 }
 
 dependencies {
+    androidTestCompile('com.android.support.test:runner:0.3') {
+        exclude module: 'support-annotations'
+    }
+    androidTestCompile('com.android.support.test:rules:0.3') {
+        exclude module: 'support-annotations'
+    }
     compile fileTree(dir: 'libs', include: ['*.jar'])
     wearApp project(':wear')
     compile 'com.android.support:appcompat-v7:22.2.1'
