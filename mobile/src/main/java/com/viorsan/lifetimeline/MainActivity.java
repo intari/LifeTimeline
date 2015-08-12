@@ -1,16 +1,26 @@
 package com.viorsan.lifetimeline;
 
+import android.databinding.DataBindingUtil;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.viorsan.lifetimeline.viewmodels.TimelineViewModel;
+import com.viorsan.lifetimeline.databinding.ActivityMainBinding;
+
 public class MainActivity extends AppCompatActivity {
+
+    ActivityMainBinding activityMainBinding;
+    TimelineViewModel timelineViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        activityMainBinding= DataBindingUtil.setContentView(this,R.layout.activity_main);
+        timelineViewModel=new TimelineViewModel();
+        //TODO:init viewModel
+        activityMainBinding.setViewModel(timelineViewModel);
     }
 
     @Override
