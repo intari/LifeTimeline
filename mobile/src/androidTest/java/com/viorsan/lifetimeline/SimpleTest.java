@@ -18,7 +18,7 @@ import junit.framework.Assert;
 @RunWith(AndroidJUnit4.class)
 public class SimpleTest {
 
-    public static final String TAG = MyApplication.class.getName();
+    public static final String TAG = SimpleTest.class.getName();
 
     @BeforeClass
     static public void doThisFirstOnlyOnce() {
