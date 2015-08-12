@@ -21,8 +21,6 @@ repositories {
 apply plugin: 'android-sdk-manager' // run before com.android.application
 
 apply plugin: 'com.android.application'
-apply plugin: 'android-apt'
-apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'com.android.databinding'
 apply plugin: 'org.moallemi.advanced-build-version'
 
@@ -225,14 +223,6 @@ android {
 
 }
 
-retrolambda {
-    //only configure on Jenkins
-    def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
-    if (jenkinsBuild!="0") {
-        jdk System.getenv("JAVA_HOME")
-        oldJdk System.getenv("JAVA7_HOME")
-    }
-}
 
 dependencies {
     androidTestCompile('com.android.support.test:runner:0.3') {
