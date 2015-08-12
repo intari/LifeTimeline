@@ -198,7 +198,7 @@ android {
 
     lintOptions {
         disable 'InvalidPackage' //temp fix to make lint not fail until DataBindingLibrary will be fixed to correctly import antlr4-4.5.jar/ST4-4.0.8.jar
-
+        disable 'MissingPrefix' //temp fix until it will handle databinding library correctly
     }
     //JavaDocs
     android.applicationVariants.all { variant ->
